@@ -1,23 +1,71 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# macOS
+.DS_Store
 
 # dependencies
 /node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 
 # testing
 /coverage
+coverage/
 
 # production
 /build
+dist/
 
 # misc
 .DS_Store
+.env
+.env.*
+!.env.example
+
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# secrets / keys (IMPORTANT for cyber project)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
+
+# Python / backend
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Java / build tools
+target/
+.gradle/
+
+# databases
+*.db
+*.sqlite
+*.sqlite3
+
+# terraform / infra
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# evidence / sensitive data (cybersecurity project)
+evidence/raw-secrets/
+evidence/private/

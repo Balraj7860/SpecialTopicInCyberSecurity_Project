@@ -12,9 +12,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "vite --host 0.0.0.0 --port 3000",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 3000"
+    "start": "PATH=/opt/homebrew/opt/node@22/bin:$PATH vite --host 0.0.0.0 --port 3000",
+    "build": "PATH=/opt/homebrew/opt/node@22/bin:$PATH vite build",
+    "preview": "PATH=/opt/homebrew/opt/node@22/bin:$PATH vite preview --host 0.0.0.0 --port 3000"
   },
   "browserslist": {
     "production": [

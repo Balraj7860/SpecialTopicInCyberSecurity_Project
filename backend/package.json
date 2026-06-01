@@ -1,12 +1,12 @@
 {
-  "name": "securebank-backend",
+  "name": "secure-wallet-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Backend API for the SecureBank portal.",
+  "description": "Backend API for the Secure Wallet portal.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "PATH=/opt/homebrew/opt/node@22/bin:$PATH PORT=5001 node server.js",
+    "dev": "PATH=/opt/homebrew/opt/node@22/bin:$PATH PORT=5001 node --watch server.js"
   },
   "dependencies": {
     "express": "^4.19.2"

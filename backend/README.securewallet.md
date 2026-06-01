@@ -1,6 +1,6 @@
-# SecureBank Backend
+# Secure Wallet Backend
 
-Small Express API for the SecureBank React app.
+Small Express API for the Secure Wallet React app.
 
 ## Setup
 
@@ -12,7 +12,7 @@ npm start
 The server runs on:
 
 ```text
-http://localhost:5000
+http://localhost:5001
 ```
 
 ## Test Accounts

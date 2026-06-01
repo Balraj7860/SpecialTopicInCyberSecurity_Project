@@ -9,14 +9,14 @@ export default function Login({ onLogin, onGoRegister }) {
     e.preventDefault();
     setMessage(""); setLoading(true);
     try {
-      const res  = await fetch("http://localhost:5000/login", {
+      const res  = await fetch("http://localhost:5001/login", {
         method: "POST", headers: { "Content-Type": "application/json" },
         credentials: "include", body: JSON.stringify(form),
       });
       const data = await res.json();
       if (!res.ok) { setMessage(data.error || "Login failed."); setLoading(false); return; }
       onLogin(data);
-    } catch { setMessage("Could not connect to the server. Make sure the backend is running on port 5000."); setLoading(false); }
+    } catch { setMessage("Could not connect to the server. Make sure the backend is running on port 5001."); setLoading(false); }
   };
 
   return (

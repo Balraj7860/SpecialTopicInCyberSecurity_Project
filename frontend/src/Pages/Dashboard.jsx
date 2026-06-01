@@ -20,21 +20,21 @@ export default function Dashboard({ user }) {
 
   const loadCards = async () => {
     try {
-      const r = await fetch("http://localhost:5000/cards", { credentials:"include" });
+      const r = await fetch("http://localhost:5001/cards", { credentials:"include" });
       if (r.ok) { setCards(await r.json()); }
     } catch {}
   };
 
   const loadTxs = async () => {
     try {
-      const r = await fetch("http://localhost:5000/transactions", { credentials:"include" });
+      const r = await fetch("http://localhost:5001/transactions", { credentials:"include" });
       if (r.ok) { setTxs(await r.json()); }
     } catch {}
   };
 
   const loadProfile = async () => {
     try {
-      const r = await fetch("http://localhost:5000/profile", { credentials:"include" });
+      const r = await fetch("http://localhost:5001/profile", { credentials:"include" });
       if (r.ok) {
         const d = await r.json();
         setProfile(d);
@@ -49,7 +49,7 @@ export default function Dashboard({ user }) {
     e.preventDefault();
     setMsg({ text:"", type:"" });
     try {
-      const r = await fetch("http://localhost:5000/cards/add", {
+      const r = await fetch("http://localhost:5001/cards/add", {
         method:"POST", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify(cardForm)
       });
@@ -66,7 +66,7 @@ export default function Dashboard({ user }) {
 
   const deleteCard = async (id) => {
     try {
-      const r = await fetch("http://localhost:5000/cards/delete", {
+      const r = await fetch("http://localhost:5001/cards/delete", {
         method:"DELETE", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify({ id })
       });
@@ -78,7 +78,7 @@ export default function Dashboard({ user }) {
     e.preventDefault();
     setMsg({ text:"", type:"" });
     try {
-      const r = await fetch("http://localhost:5000/transactions/add", {
+      const r = await fetch("http://localhost:5001/transactions/add", {
         method:"POST", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify({ ...txForm, amount: parseFloat(txForm.amount) })
       });
@@ -97,7 +97,7 @@ export default function Dashboard({ user }) {
     e.preventDefault();
     setMsg({ text:"", type:"" });
     try {
-      const r = await fetch("http://localhost:5000/profile", {
+      const r = await fetch("http://localhost:5001/profile", {
         method:"PUT", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify(profileForm)
       });
@@ -117,7 +117,7 @@ export default function Dashboard({ user }) {
     setMsg({ text:"", type:"" });
     if (pwForm.newPassword !== pwForm.confirm) { err("New passwords do not match."); return; }
     try {
-      const r = await fetch("http://localhost:5000/password", {
+      const r = await fetch("http://localhost:5001/password", {
         method:"PUT", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify({ current: pwForm.current, newPassword: pwForm.newPassword })
       });

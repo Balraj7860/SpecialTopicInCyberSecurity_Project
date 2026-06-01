@@ -16,7 +16,7 @@ export default function Register({ onLogin, onGoLogin }) {
     if (form.password.length < 6)       { setMessage("Password must be at least 6 characters."); return; }
     setLoading(true);
     try {
-      const res  = await fetch("http://localhost:5000/register", {
+      const res  = await fetch("http://localhost:5001/register", {
         method: "POST", headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ username: form.username, password: form.password, fullName: form.fullName, email: form.email, dob: form.dob, country: form.country, zipCode: form.zipCode, phone: form.phone }),

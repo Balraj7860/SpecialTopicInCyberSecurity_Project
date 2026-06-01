@@ -15,7 +15,7 @@ export default function Admin() {
 
   const loadUsers = async () => {
     try {
-      const r = await fetch("http://localhost:5000/admin/users", { credentials:"include" });
+      const r = await fetch("http://localhost:5001/admin/users", { credentials:"include" });
       if (r.ok) {
         setUsers(await r.json());
       } else {
@@ -30,7 +30,7 @@ export default function Admin() {
   const deleteUser = async (username) => {
     if (!window.confirm(`Delete user "${username}"? This cannot be undone.`)) return;
     try {
-      const r = await fetch("http://localhost:5000/admin/users/delete", {
+      const r = await fetch("http://localhost:5001/admin/users/delete", {
         method:"DELETE", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify({ username })
       });
@@ -44,7 +44,7 @@ export default function Admin() {
     e.preventDefault();
     setMsg({ text:"", type:"" });
     try {
-      const r = await fetch("http://localhost:5000/admin/users/add", {
+      const r = await fetch("http://localhost:5001/admin/users/add", {
         method:"POST", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify(addForm)
       });
@@ -64,7 +64,7 @@ export default function Admin() {
     e.preventDefault();
     setMsg({ text:"", type:"" });
     try {
-      const r = await fetch("http://localhost:5000/admin/users/edit", {
+      const r = await fetch("http://localhost:5001/admin/users/edit", {
         method:"PUT", headers:{"Content-Type":"application/json"},
         credentials:"include", body:JSON.stringify({ username: editUser.username, ...editForm })
       });

@@ -5,11 +5,12 @@
   "description": "Backend API for the Secure Wallet portal.",
   "main": "server.js",
   "scripts": {
-    "start": "PATH=/opt/homebrew/opt/node@22/bin:$PATH PORT=5001 node server.js",
-    "dev": "PATH=/opt/homebrew/opt/node@22/bin:$PATH PORT=5001 node --watch server.js"
+    "start": "set PORT=5001 && node server.js",
+    "dev": "set PORT=5001 && node --watch server.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3"
   },
   "keywords": [],
   "author": "",

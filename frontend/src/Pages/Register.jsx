@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 const COUNTRIES = ["Canada","United States","Mexico","Colombia","Brazil","Argentina","Spain","United Kingdom","Germany","France","Australia","Other"];
+const PASSWORD_RULE = "Password must be at least 8 characters and include one uppercase letter and one symbol.";
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export default function Register({ onLogin, onGoLogin }) {
   const [form, setForm] = useState({ username:"", fullName:"", email:"", dob:"", country:"", zipCode:"", phone:"", password:"", confirm:"" });
@@ -13,7 +15,7 @@ export default function Register({ onLogin, onGoLogin }) {
     e.preventDefault();
     setMessage("");
     if (form.password !== form.confirm) { setMessage("Passwords do not match."); return; }
-    if (form.password.length < 6)       { setMessage("Password must be at least 6 characters."); return; }
+    if (!PASSWORD_REGEX.test(form.password)) { setMessage(PASSWORD_RULE); return; }
     setLoading(true);
     try {
       const res  = await fetch("http://localhost:5001/register", {
@@ -48,6 +50,7 @@ export default function Register({ onLogin, onGoLogin }) {
         .field input:focus,
         .field select:focus{ border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(29,78,216,0.1); }
         .field select option{ background:#fff; }
+        .hint       { grid-column:1/-1;font-size:12px;color:#6b7280;margin-top:-6px;line-height:1.4; }
         .divider    { grid-column:1/-1;border:none;border-top:1px solid #f3f4f6;margin:4px 0; }
         .btn-main   { width:100%;padding:10px;background:#1d4ed8;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-top:16px;transition:background 0.15s; }
         .btn-main:hover{ background:#1e40af; }
@@ -82,12 +85,13 @@ export default function Register({ onLogin, onGoLogin }) {
               </div>
               <div className="field">
                 <label>Password *</label>
-                <input type="password" placeholder="Min. 6 characters" value={form.password} onChange={set("password")} required />
+                <input type="password" placeholder="Min. 8 chars, uppercase, symbol" value={form.password} onChange={set("password")} required />
               </div>
               <div className="field">
                 <label>Confirm Password *</label>
                 <input type="password" placeholder="Repeat password" value={form.confirm} onChange={set("confirm")} required />
               </div>
+              <div className="hint">{PASSWORD_RULE}</div>
 
               <hr className="divider" />
               <div className="section-label">Personal Information</div>

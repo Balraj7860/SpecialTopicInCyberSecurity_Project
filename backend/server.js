@@ -1,9 +1,11 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const JWT_SECRET = process.env.JWT_SECRET || "dev-only-secure-wallet-secret-change-me";
+const AUTH_COOKIE = "auth_token";
 
-let currentUser = null;
 let nextCardId = 1;
 let nextTransactionId = 1;
 
@@ -49,6 +51,9 @@ const allowedOrigins = new Set([
   "http://127.0.0.1:3001",
 ]);
 
+const PASSWORD_RULE = "Password must be at least 8 characters and include one uppercase letter and one symbol.";
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+
 app.use(express.json());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -68,20 +73,66 @@ app.use((req, res, next) => {
   next();
 });
 
+function parseCookies(cookieHeader = "") {
+  return cookieHeader.split(";").reduce((cookies, pair) => {
+    const [rawName, ...rawValue] = pair.trim().split("=");
+    if (!rawName) return cookies;
+    cookies[rawName] = decodeURIComponent(rawValue.join("="));
+    return cookies;
+  }, {});
+}
+
+function getToken(req) {
+  const authHeader = req.headers.authorization || "";
+  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  return parseCookies(req.headers.cookie)[AUTH_COOKIE] || bearerToken;
+}
+
+function authCookieOptions() {
+  return [
+    "HttpOnly",
+    "Path=/",
+    "SameSite=Lax",
+    "Max-Age=86400",
+    process.env.NODE_ENV === "production" ? "Secure" : "",
+  ].filter(Boolean).join("; ");
+}
+
+function issueAuthToken(res, username) {
+  const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: "1d" });
+  res.setHeader("Set-Cookie", `${AUTH_COOKIE}=${encodeURIComponent(token)}; ${authCookieOptions()}`);
+}
+
 function requireLogin(req, res, next) {
-  if (!currentUser) {
+  const token = getToken(req);
+
+  if (!token) {
     return res.status(401).json({ error: "Please log in first." });
   }
 
-  next();
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    const user = users[payload.username];
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid or expired session." });
+    }
+
+    req.user = publicUser(payload.username, user);
+    return next();
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired session." });
+  }
 }
 
 function requireAdmin(req, res, next) {
-  if (!currentUser || currentUser.role !== "admin") {
-    return res.status(403).json({ error: "Admin access required." });
-  }
+  return requireLogin(req, res, () => {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Admin access required." });
+    }
 
-  next();
+    return next();
+  });
 }
 
 function publicUser(username, user) {
@@ -98,11 +149,6 @@ function publicUser(username, user) {
   };
 }
 
-function refreshCurrentUser(username) {
-  currentUser = publicUser(username, users[username]);
-  return currentUser;
-}
-
 function ensureUserCollections(username) {
   if (!cardsByUser[username]) cardsByUser[username] = [];
   if (!transactionsByUser[username]) transactionsByUser[username] = [];
@@ -115,6 +161,10 @@ function createUser(payload, defaultRole = "user") {
 
   if (!username || !password || !role) {
     return { error: "Username, password, and role are required.", status: 400 };
+  }
+
+  if (!PASSWORD_REGEX.test(password)) {
+    return { error: PASSWORD_RULE, status: 400 };
   }
 
   if (users[username]) {
@@ -163,19 +213,15 @@ function updateUser(username, payload) {
     users[username].role = payload.role;
   }
 
-  if (currentUser?.username === username) {
-    refreshCurrentUser(username);
-  }
-
   return { user: publicUser(username, users[username]) };
 }
 
-function deleteUser(username) {
+function deleteUser(username, currentUsername) {
   if (!username || !users[username]) {
     return { error: "User not found.", status: 404 };
   }
 
-  if (username === currentUser?.username) {
+  if (username === currentUsername) {
     return { error: "You cannot delete your own account while logged in.", status: 400 };
   }
 
@@ -197,8 +243,8 @@ app.post("/register", (req, res) => {
     return res.status(result.status).json({ error: result.error });
   }
 
-  currentUser = result.user;
-  res.status(201).json(currentUser);
+  issueAuthToken(res, result.user.username);
+  res.status(201).json(result.user);
 });
 
 app.post("/login", (req, res) => {
@@ -209,24 +255,25 @@ app.post("/login", (req, res) => {
     return res.status(401).json({ error: "Invalid username or password." });
   }
 
-  res.json(refreshCurrentUser(username));
+  issueAuthToken(res, username);
+  res.json(publicUser(username, user));
 });
 
 app.post("/logout", (req, res) => {
-  currentUser = null;
+  res.setHeader("Set-Cookie", `${AUTH_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0`);
   res.json({ message: "Logged out successfully." });
 });
 
 app.get("/me", requireLogin, (req, res) => {
-  res.json(currentUser);
+  res.json(req.user);
 });
 
 app.get("/profile", requireLogin, (req, res) => {
-  res.json(publicUser(currentUser.username, users[currentUser.username]));
+  res.json(publicUser(req.user.username, users[req.user.username]));
 });
 
 app.put("/profile", requireLogin, (req, res) => {
-  const result = updateUser(currentUser.username, req.body);
+  const result = updateUser(req.user.username, req.body);
 
   if (result.error) {
     return res.status(result.status).json({ error: result.error });
@@ -237,7 +284,7 @@ app.put("/profile", requireLogin, (req, res) => {
 
 app.put("/password", requireLogin, (req, res) => {
   const { current, newPassword } = req.body;
-  const user = users[currentUser.username];
+  const user = users[req.user.username];
 
   if (!current || !newPassword) {
     return res.status(400).json({ error: "Current password and new password are required." });
@@ -247,8 +294,8 @@ app.put("/password", requireLogin, (req, res) => {
     return res.status(401).json({ error: "Current password is incorrect." });
   }
 
-  if (newPassword.length < 6) {
-    return res.status(400).json({ error: "New password must be at least 6 characters." });
+  if (!PASSWORD_REGEX.test(newPassword)) {
+    return res.status(400).json({ error: PASSWORD_RULE });
   }
 
   user.password = newPassword;
@@ -289,7 +336,7 @@ app.put("/admin/users/edit", requireAdmin, (req, res) => {
 });
 
 app.delete(["/admin/delete", "/admin/users/delete"], requireAdmin, (req, res) => {
-  const result = deleteUser(req.body.username);
+  const result = deleteUser(req.body.username, req.user.username);
 
   if (result.error) {
     return res.status(result.status).json({ error: result.error });
@@ -299,8 +346,8 @@ app.delete(["/admin/delete", "/admin/users/delete"], requireAdmin, (req, res) =>
 });
 
 app.get("/cards", requireLogin, (req, res) => {
-  ensureUserCollections(currentUser.username);
-  res.json(cardsByUser[currentUser.username]);
+  ensureUserCollections(req.user.username);
+  res.json(cardsByUser[req.user.username]);
 });
 
 app.post("/cards/add", requireLogin, (req, res) => {
@@ -310,7 +357,7 @@ app.post("/cards/add", requireLogin, (req, res) => {
     return res.status(400).json({ error: "Card number, holder, and expiry are required." });
   }
 
-  ensureUserCollections(currentUser.username);
+  ensureUserCollections(req.user.username);
 
   const card = {
     id: nextCardId++,
@@ -321,18 +368,18 @@ app.post("/cards/add", requireLogin, (req, res) => {
     type: type || "other",
   };
 
-  cardsByUser[currentUser.username].push(card);
+  cardsByUser[req.user.username].push(card);
   res.status(201).json({ message: "Card added successfully.", card });
 });
 
 app.delete("/cards/delete", requireLogin, (req, res) => {
-  ensureUserCollections(currentUser.username);
+  ensureUserCollections(req.user.username);
 
   const id = Number(req.body.id);
-  const before = cardsByUser[currentUser.username].length;
-  cardsByUser[currentUser.username] = cardsByUser[currentUser.username].filter((card) => card.id !== id);
+  const before = cardsByUser[req.user.username].length;
+  cardsByUser[req.user.username] = cardsByUser[req.user.username].filter((card) => card.id !== id);
 
-  if (cardsByUser[currentUser.username].length === before) {
+  if (cardsByUser[req.user.username].length === before) {
     return res.status(404).json({ error: "Card not found." });
   }
 
@@ -340,8 +387,8 @@ app.delete("/cards/delete", requireLogin, (req, res) => {
 });
 
 app.get("/transactions", requireLogin, (req, res) => {
-  ensureUserCollections(currentUser.username);
-  res.json(transactionsByUser[currentUser.username]);
+  ensureUserCollections(req.user.username);
+  res.json(transactionsByUser[req.user.username]);
 });
 
 app.post("/transactions/add", requireLogin, (req, res) => {
@@ -356,7 +403,7 @@ app.post("/transactions/add", requireLogin, (req, res) => {
     return res.status(400).json({ error: "Transaction type must be credit or debit." });
   }
 
-  ensureUserCollections(currentUser.username);
+  ensureUserCollections(req.user.username);
 
   const transaction = {
     id: nextTransactionId++,
@@ -366,7 +413,7 @@ app.post("/transactions/add", requireLogin, (req, res) => {
     date: new Date().toLocaleDateString("en-CA"),
   };
 
-  transactionsByUser[currentUser.username].push(transaction);
+  transactionsByUser[req.user.username].push(transaction);
   res.status(201).json({ message: "Transaction added successfully.", transaction });
 });
 

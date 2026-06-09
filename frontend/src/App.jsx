@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import Dashboard from "./Pages/Dashboard";
@@ -7,6 +7,7 @@ import Admin from "./Pages/Admin";
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [page, setPage] = useState("login");
+  const [authChecked, setAuthChecked] = useState(false);
 
   const handleLogin = (user) => {
     setCurrentUser(user);
@@ -14,10 +15,27 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    try { await fetch("http://localhost:5000/logout", { method: "POST", credentials: "include" }); } catch {}
+    try { await fetch("http://localhost:5001/logout", { method: "POST", credentials: "include" }); } catch {}
     setCurrentUser(null);
     setPage("login");
   };
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/me", { credentials: "include" });
+        if (res.ok) {
+          handleLogin(await res.json());
+        }
+      } catch {
+        // Stay on the login page when there is no active backend session.
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   return (
     <>
@@ -107,8 +125,9 @@ export default function App() {
         )}
 
         <main>
-          {!currentUser && page === "login"    && <Login    onLogin={handleLogin} onGoRegister={() => setPage("register")} />}
-          {!currentUser && page === "register" && <Register onLogin={handleLogin} onGoLogin={() => setPage("login")} />}
+          {!authChecked && !currentUser && null}
+          {authChecked && !currentUser && page === "login"    && <Login    onLogin={handleLogin} onGoRegister={() => setPage("register")} />}
+          {authChecked && !currentUser && page === "register" && <Register onLogin={handleLogin} onGoLogin={() => setPage("login")} />}
           {currentUser  && page === "dashboard" && <Dashboard user={currentUser} />}
           {currentUser  && page === "admin"     && currentUser.role === "admin" && <Admin />}
         </main>

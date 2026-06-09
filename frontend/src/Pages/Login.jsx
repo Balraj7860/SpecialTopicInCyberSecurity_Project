@@ -64,7 +64,7 @@ export default function Login({ onLogin, onGoRegister }) {
             <button className="btn-main" type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
           </form>
           <div className="auth-footer">
-            Don't have an account? <button onClick={onGoRegister}>Create one</button>
+            New user? <button onClick={onGoRegister}>Register</button>
           </div>
         </div>
       </div>

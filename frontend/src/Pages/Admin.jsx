@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+const PASSWORD_RULE = "Password must be at least 8 characters and include one uppercase letter and one symbol.";
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+
 export default function Admin() {
   const [users, setUsers]   = useState([]);
   const [tab, setTab]       = useState("users");
@@ -43,6 +46,10 @@ export default function Admin() {
   const addUser = async (e) => {
     e.preventDefault();
     setMsg({ text:"", type:"" });
+    if (!PASSWORD_REGEX.test(addForm.password)) {
+      err(PASSWORD_RULE);
+      return;
+    }
     try {
       const r = await fetch("http://localhost:5001/admin/users/add", {
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -124,6 +131,7 @@ export default function Admin() {
         .fg input,.fg select{ padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;color:#111827;outline:none;background:#fff; }
         .fg input:focus,.fg select:focus{ border-color:#1d4ed8;box-shadow:0 0 0 2px rgba(29,78,216,0.1); }
         .fg.full{ grid-column:1/-1; }
+        .fg.hint{ grid-column:1/-1;font-size:12px;color:#6b7280;line-height:1.4;margin-top:-6px; }
         .form-row{ grid-column:1/-1;display:flex;gap:8px;padding-top:4px; }
         .btn-ghost{ padding:8px 14px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer; }
         .btn-ghost:hover{ background:#f3f4f6; }
@@ -190,7 +198,8 @@ export default function Admin() {
             <div className="ct">Create New User</div>
             <form className="add-form" onSubmit={addUser}>
               <div className="fg"><label>Username *</label><input placeholder="jdoe" value={addForm.username} onChange={e => setAddForm({...addForm, username: e.target.value})} required /></div>
-              <div className="fg"><label>Password *</label><input type="password" placeholder="••••••••" value={addForm.password} onChange={e => setAddForm({...addForm, password: e.target.value})} required /></div>
+              <div className="fg"><label>Password *</label><input type="password" placeholder="Min. 8 chars, uppercase, symbol" value={addForm.password} onChange={e => setAddForm({...addForm, password: e.target.value})} required /></div>
+              <div className="fg hint">{PASSWORD_RULE}</div>
               <div className="fg full"><label>Full Name *</label><input placeholder="John Doe" value={addForm.fullName} onChange={e => setAddForm({...addForm, fullName: e.target.value})} required /></div>
               <div className="fg"><label>Email *</label><input type="email" placeholder="user@email.com" value={addForm.email} onChange={e => setAddForm({...addForm, email: e.target.value})} required /></div>
               <div className="fg"><label>Phone</label><input type="tel" placeholder="+1 555 000 0000" value={addForm.phone||""} onChange={e => setAddForm({...addForm, phone: e.target.value})} /></div>

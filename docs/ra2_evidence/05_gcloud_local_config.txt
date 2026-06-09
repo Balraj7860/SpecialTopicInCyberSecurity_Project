@@ -1,0 +1,24 @@
+$ CLOUDSDK_CONFIG=./docs/ra2_evidence/gcloud_config_ra2 gcloud config configurations create secure-wallet-ra2 --quiet
+
+Created [secure-wallet-ra2].
+Activated [secure-wallet-ra2].
+
+$ CLOUDSDK_CONFIG=./docs/ra2_evidence/gcloud_config_ra2 gcloud config list
+
+[core]
+disable_usage_reporting = true
+
+Your active configuration is: [secure-wallet-ra2]
+
+$ CLOUDSDK_CONFIG=./docs/ra2_evidence/gcloud_config_ra2 gcloud auth list
+
+No credentialed accounts.
+
+To login, run:
+  $ gcloud auth login `ACCOUNT`
+
+$ CLOUDSDK_CONFIG=./docs/ra2_evidence/gcloud_config_ra2 gcloud config configurations list
+
+NAME               IS_ACTIVE  ACCOUNT  PROJECT  COMPUTE_DEFAULT_ZONE  COMPUTE_DEFAULT_REGION
+default            False
+secure-wallet-ra2  True

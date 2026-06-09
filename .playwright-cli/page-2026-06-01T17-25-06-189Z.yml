@@ -1,0 +1,42 @@
+- generic [ref=e3]:
+  - navigation [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]: DBI
+      - generic [ref=e27]:
+        - generic [ref=e28]: DBI Wallet
+        - generic [ref=e29]: Secure Digital Wallet
+    - generic [ref=e30]:
+      - generic [ref=e31]: Demo User · user
+      - button "Dashboard" [ref=e32] [cursor=pointer]
+      - button "Sign Out" [ref=e33] [cursor=pointer]
+  - main [ref=e4]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - heading "Hello, Demo User 👋" [level=2] [ref=e36]
+        - paragraph [ref=e37]: DBI Wallet · Monday, June 1, 2026
+      - generic [ref=e38]:
+        - button "Overview" [ref=e39] [cursor=pointer]
+        - button "My cards" [ref=e40] [cursor=pointer]
+        - button "Transactions" [ref=e41] [cursor=pointer]
+        - button "Profile" [ref=e42] [cursor=pointer]
+        - button "Security" [ref=e43] [cursor=pointer]
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: Total Balance
+          - generic [ref=e47]: $0.00
+          - generic [ref=e48]: Available funds
+        - generic [ref=e49]:
+          - generic [ref=e50]: Saved Cards
+          - generic [ref=e51]: "0"
+          - generic [ref=e52]: Linked to wallet
+        - generic [ref=e53]:
+          - generic [ref=e54]: Transactions
+          - generic [ref=e55]: "0"
+          - generic [ref=e56]: Total recorded
+        - generic [ref=e57]:
+          - generic [ref=e58]: Account
+          - generic [ref=e59]: ● Active
+          - generic [ref=e60]: Canada
+      - generic [ref=e61]:
+        - generic [ref=e62]: Recent Transactions
+        - generic [ref=e63]: No transactions yet. Add one in the Transactions tab.

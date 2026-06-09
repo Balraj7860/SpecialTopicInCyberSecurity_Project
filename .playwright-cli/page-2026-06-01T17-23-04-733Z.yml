@@ -1,0 +1,20 @@
+- main [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]: DBI
+      - generic [ref=e9]:
+        - generic [ref=e10]: DBI Wallet
+        - generic [ref=e11]: Secure Digital Wallet
+    - heading "Sign in" [level=1] [ref=e12]
+    - paragraph [ref=e13]: Welcome back — enter your credentials to continue
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Username
+        - textbox "Enter your username" [ref=e17]
+      - generic [ref=e18]:
+        - generic [ref=e19]: Password
+        - textbox "••••••••" [ref=e20]
+      - button "Sign in" [ref=e21] [cursor=pointer]
+    - generic [ref=e22]:
+      - text: Don't have an account?
+      - button "Create one" [ref=e23] [cursor=pointer]

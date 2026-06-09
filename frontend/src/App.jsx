@@ -14,6 +14,7 @@ export default function App() {
     setPage(user.role === "admin" ? "admin" : "dashboard");
   };
 
+<<<<<<< Updated upstream
   const handleLogout = async () => {
     try { await fetch("http://localhost:5001/logout", { method: "POST", credentials: "include" }); } catch {}
     setCurrentUser(null);
@@ -36,6 +37,13 @@ export default function App() {
 
     restoreSession();
   }, []);
+=======
+  const handleLogout = async () => {
+    try { await fetch("http://localhost:5001/logout", { method: "POST", credentials: "include" }); } catch {}
+    setCurrentUser(null);
+    setPage("login");
+  };
+>>>>>>> Stashed changes
 
   return (
     <>
